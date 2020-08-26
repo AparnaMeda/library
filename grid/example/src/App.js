@@ -7,6 +7,7 @@ import FlightEdit from "./cells/FlightEdit";
 import SrEdit from "./cells/SrEdit";
 import SegmentEdit from "./cells/SegmentEdit";
 import RowEdit from "./cells/RowEdit";
+import AWBDetails from "./components/AWBDetails";
 
 const App = () => {
     //#region -- Variable that are specific to example application
@@ -15,7 +16,7 @@ const App = () => {
     const urlPageSize = search
         ? parseInt(search.replace("?pagesize=", ""))
         : NaN;
-    const pageSize = !isNaN(urlPageSize) ? urlPageSize : 300;
+    const pageSize = !isNaN(urlPageSize) ? urlPageSize : 3;
     //State for holding index value for API call
     const [index, setIndex] = useState(0);
     //#endregion
@@ -79,76 +80,47 @@ const App = () => {
     ];
 
     //Async function that is required by Grid component to load data
-    const loadData = async () => {
-        setIndex(index + pageSize);
-        return await fetchData(index, pageSize);
-    };
+    // const loadData = async () => {
+    //     setIndex(index + pageSize);
+    //     return await fetchData(index, pageSize);
+    // };
 
     //Configure columns and its related functions
     let columns = [
         {
             Header: "AWB Details",
-            accessor: "awbId",
-            width: 50,
-            disableFilters: true
-        },
-        {
-            Header: "Discrepancy",
-            accessor: "discrepancy",
-            width: 100,
-            disableFilters: true
-        },
-        {
-            Header: "Route Details",
-            accessor: "routedetails",
-            width: 120,
-            innerCells: [
-                {
-                    Header: "Origin",
-                    accessor: "Origin"
-                },
-                {
-                    Header: "Destination",
-                    accessor: "Destination"
-                },                
-                {
-                    Header: "CarrierFlightNo",
-                    accessor: "CarrierFlightNo"
-                }
-            ],
-            disableSortBy: true,
-            displayCell: (rowData, DisplayTag) => {
-                const { routedetails } = rowData;
+            accessor: "awb_details",
+            width: 300,
+            disableFilters: true,
+            displayCell: (rowData) => {
+                //debugger;
+
                 return (
-                    <div className="uld-details">
-                        <ul>
-                            {routedetails.map((routes, index) => {
-                                return (
-                                    <li key={index}>
-                                        <DisplayTag
-                                            columnKey="routedetails"
-                                            cellKey="Origin"
-                                        >
-                                            <span>{routes.Origin}</span>
-                                        </DisplayTag>
-                                        <DisplayTag
-                                            columnKey="routedetails"
-                                            cellKey="Destination"
-                                        >
-                                            <strong>{routes.Destination}</strong>
-                                        </DisplayTag>
-                                        <DisplayTag
-                                            columnKey="routedetails"
-                                            cellKey="CarrierFlightNo"
-                                        >
-                                            <strong>{routes.CarrierFlightNo}</strong>
-                                        </DisplayTag>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                    <div>
+                        <AWBDetails rowData={rowData} />
                     </div>
                 );
+            }
+        },
+
+        {
+            Header: "Discrepancy",
+            accessor: "shipment_prefix",
+            width: 300,
+            disableFilters: true,
+            displayCell: (rowData) => {
+                return <div>{/* <SampleFormFormik /> */}</div>;
+            }
+        },
+        {
+            Header: "Non AWB charges",
+            accessor: "nonAwbCharges",
+            width: 300,
+            height: 400,
+            disableSortBy: true,
+            displayCell: (rowData) => {
+                //console.log(rowData);
+                return <div>{/* <Sample /> */}</div>;
             }
         }
     ];
@@ -243,7 +215,7 @@ const App = () => {
     //Add logic to calculate height of each row, based on the content of  or more columns
     const calculateRowHeight = (row, gridColumns) => {
         //Minimum height for each row
-        let rowHeight = 50;
+        let rowHeight = 300;
         if (gridColumns && gridColumns.length > 0 && row) {
             //Get properties of a row
             const { original, isExpanded } = row;
@@ -303,7 +275,7 @@ const App = () => {
             title="AWBs"
             gridHeight="80vh"
             gridWidth="100%"
-            loadData={loadData}
+            loadData={fetchData}
             columns={columns}
             columnToExpand={columnToExpand}
             rowActions={rowActions}
